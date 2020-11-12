@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <link rel="stylesheet" href="{{ url_for('static',filename='search.css') }}">
+    <title>SQL Practice</title>
+  </head>
+  <body>
+    <h1>Let's practice!</h1>
+
+    <div id="message">{{msg}}</div>
+
+    <div id="output">
+      {% for n in data %}
+      <div>{{n}}</div>
+      {% endfor %}
+    </div>
+
+    <div id="search">
+      <form method="GET" action="/searchdifficulty">
+        <p>Please select a difficulty level you would like to pratice with: </p>
+        <select name="difficulty">
+          <option selected value="easy">easy</option>
+          <option value="medium">medium</option>
+          <option value="hard">hard</option>
+        </select>
+        <input type="submit" value="Search Difficulty">
+      </form>
+
+      <form method="GET" action="/searchtopic">
+        <p>Please select a topic you are interested in: </p>
+        <select name="topic">
+          <option selected value="select">select</option>
+          <option value="left join">left join</option>
+          <option value="right join">right join</option>
+          <option value="where">where</option>
+          <option value="and">and</option>
+          <option value="or">or</option>
+          <option value="order by">order by</option>
+          <option value="delete">delete</option>
+          <option value="in">in</option>
+          <option value="between">between</option>
+        </select>
+        <input type="submit" value="Search Topic">
+      </form>
+
+      <form method="GET" action="/searchcompany">
+        <p>Please select a company whose interview questions you are interested in: </p>
+        <select name="company">
+          <option selected value="amazon">amazon</option>
+          <option value="google">google</option>
+          <option value="facebook">facebook</option>
+          <option value="adobe">adobe</option>
+          <option value="verizon">verizon</option>
+          <option value="linkedin">linkedin</option>
+          <option value="uber">uber</option>
+          <option value="lyft">lyft</option>
+          <option value="ebay">ebay</option>
+          <option value="apple">apple</option>
+          <option value="priceline">priceline</option>
+          <option value="microsoft">microsoft</option>
+          <option value="costco">costco</option>
+          <option value="tesla">tesla</option>
+          <option value="t-mobile">t-mobile</option>
+          <option value="goldman saches">goldman saches</option>
+          <option value="oracle">oracle</option>
+          <option value="doordash">doordash</option>
+          <option value="between">between</option>
+        </select>
+        <input type="submit" value="Search Company">
+      </form>
+
+      <form method="GET" action="/searchreal">
+        <p>Please select whether you would like to practice all questions or only those asked by companies: </p>
+        <select name="real">
+          <option selected value="all">Please show me all questions</option>
+          <option value="real">Real interview questions only</option>
+        </select>
+        <input type="submit" value="Search Real">
+      </form>
+
+      <form method="GET" action="/searchdiscussion">
+        <p>Please select a question title whose discussions you would like to see: </p>
+        <select name="discussion">
+          <option selected value="1">Reported Posts</option>
+          <option value="2">User Activity for the Past 30 Days I</option>
+          <option value="3">User Activity for the Past 30 Days II</option>
+          <option value="4">Article Views I</option>
+          <option value="5">Immediate Food Delivery I</option>
+          <option value="6">Reformat Department Table</option>
+          <option value="7">Queries Quality and Percentage</option>
+          <option value="8">Average Selling Price</option>
+          <option value="9">Students and Examinations</option>
+          <option value="10">Find the Team Size</option>
+        </select>
+        <input type="submit" value="Search Discussion">
+      </form>
+
+      <form method="GET" action="/searchtrained">
+        <p>I would like to see questions I practiced before. My username is: </p>
+        <input type="text" name="trained">
+        <input type="submit" value="Search Trained Questions">
+      </form>
+
+      <form method="GET" action="/searchliked">
+        <p>I would like to see questions I saved before. My username is: </p>
+        <input type="text" name="liked"> <input type="submit" value="Search Saved Questions">
+      </form>
+    </div>
+
+    <p>Done practicing? <a href="/">Log out</a></p>
+  </body>
+</html>

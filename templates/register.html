@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Register</title>
+  </head>
+  <body>
+    <h1>Please enter the following information.</h1>
+
+    <form method='post' action="/newuser">
+      <div><strong>username: </strong><input name='name' type='text' size='8' autofocus='autofocus' /></div>
+      <div><strong>password: </strong><input name='password' type='password' size='8' /></div>
+      <div><strong>email: </strong><input name='email' type='text' size='8' autofocus='autofocus' /></div>
+      <div><strong>first name: </strong><input name='firstname' type='text' size='8' /></div>
+      <div><strong>last name: </strong><input name='lastname' type='text' size='8' /></div>
+      <div><input type='submit' value='register' class='btn' /></div>
+    </form>
+
+    <div>{{msg}}</div>
+
+    <p><a href="/">Go back to home page.</a></p>
+  </body>
+</html>
