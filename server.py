@@ -12,7 +12,7 @@ import os
   # accessible as a variable in index.html:
 from sqlalchemy import *
 from sqlalchemy.pool import NullPool
-from flask import Flask, request, render_template, g, redirect, Response
+from flask import Flask, request, render_template, g, redirect, Response, make_response
 import re
 
 tmpl_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'templates')
@@ -81,63 +81,9 @@ def teardown_request(exception):
 #
 @app.route('/')
 def index():
-  """
-  request is a special object that Flask provides to access web request information:
-
-  request.method:   "GET" or "POST"
-  request.form:     if the browser submitted a form, this contains the data in the form
-  request.args:     dictionary of URL arguments, e.g., {a:1, b:2} for http://localhost?a=1&b=2
-
-  See its API: http://flask.pocoo.org/docs/0.10/api/#incoming-request-data
-  """
-
-  # DEBUG: this is debugging code to see what request looks like
-  print(request.args)
-
-
-  #
-  # example of a database query
-  #
-  cursor = g.conn.execute("SELECT * FROM Users")
-  names = []
-  for result in cursor:
-    names.append(result['username'])  # can also be accessed using result[0]
-  cursor.close()
-
-  #
-  # Flask uses Jinja templates, which is an extension to HTML where you can
-  # pass data to a template and dynamically generate HTML based on the data
-  # (you can think of it as simple PHP)
-  # documentation: https://realpython.com/blog/python/primer-on-jinja-templating/
-  #
-  # You can see an example template in templates/index.html
-  #
-  # context are the variables that are passed to the template.
-  # for example, "data" key in the context variable defined below will be
-  # accessible as a variable in index.html:
-  #
-  #     # will print: [u'grace hopper', u'alan turing', u'ada lovelace']
-  #     <div>{{data}}</div>
-  #
-  #     # creates a <div> tag for each element in data
-  #     # will print:
-  #     #
-  #     #   <div>grace hopper</div>
-  #     #   <div>alan turing</div>
-  #     #   <div>ada lovelace</div>
-  #     #
-  #     {% for n in data %}
-  #     <div>{{n}}</div>
-  #     {% endfor %}
-  #
-  context = dict(data = names)
-
-
-  #
-  # render_template looks in the templates/ folder for files.
-  # for example, the below file reads template/index.html
-  #
-  return render_template("index.html", **context)
+  resp = make_response(render_template("index.html"))
+  resp.set_cookie('username', '', expires=0)
+  return resp
 
 #
 # This is an example of a different path.  You can see it at:
@@ -209,7 +155,9 @@ def olduser():
     context = dict(msg = message)
     return render_template("login.html", **context)
   cursor.close()
-  return render_template("search.html")
+  resp = make_response(render_template("search.html"))
+  resp.set_cookie('username', username)
+  return resp
 
 @app.route('/searchdifficulty')
 def searchdifficulty():
@@ -289,48 +237,45 @@ def searchdiscussion():
 
 @app.route('/searchtrained')
 def searchtrained():
-  username = request.args.get('trained')
-
+  username = request.cookies.get('username')
   cursor = g.conn.execute("SELECT * FROM Users u WHERE u.username = %s", username)
   record = cursor.fetchone()
   if record is None:
-    message = "Username does not exist."
+    message = "Cannot identify user. Please login first."
     context = dict(msg = message)
     return render_template("search.html", **context)
 
   cursor = g.conn.execute("SELECT q.qid, q.title, q.content, u.trained_at FROM Questions q, User_Trained_Question u WHERE q.qid = u.qid AND u.username = %s", username)
-  discussion = []
+  questions = []
   for result in cursor:
-    discussion.append(result)
+    questions.append(result)
   cursor.close()
-  if len(discussion) == 0:
+  if len(questions) == 0:
     message = "You have not trained on any question yet."
     context = dict(msg = message)
     return render_template("search.html", **context)
-  context = dict(data = discussion)
+  context = dict(data = questions)
   return render_template("search.html", **context)
 
 @app.route('/searchliked')
 def searchliked():
-  username = request.args.get('liked')
-
+  username = request.cookies.get('username')
   cursor = g.conn.execute("SELECT * FROM Users u WHERE u.username = %s", username)
   record = cursor.fetchone()
   if record is None:
-    message = "Username does not exist."
+    message = "Cannot identify user. Please login first."
     context = dict(msg = message)
     return render_template("search.html", **context)
-
   cursor = g.conn.execute("SELECT q.qid, q.title, q.content FROM Questions q, User_Liked_Question u WHERE q.qid = u.qid AND u.username = %s", username)
-  discussion = []
+  questions = []
   for result in cursor:
-    discussion.append(result)
+    questions.append(result)
   cursor.close()
-  if len(discussion) == 0:
+  if len(questions) == 0:
     message = "You have not liked any question yet."
     context = dict(msg = message)
     return render_template("search.html", **context)
-  context = dict(data = discussion)
+  context = dict(data = questions)
   return render_template("search.html", **context)
 
 if __name__ == "__main__":
