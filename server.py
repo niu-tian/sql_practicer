@@ -87,10 +87,10 @@ def add():
   cursor.close()
   return redirect('/search')
 
-@app.route('/olduser', methods=['POST'])
+@app.route('/olduser')
 def olduser():
-  username = request.form['name']
-  password = request.form['password']
+  username = request.args.get('name')
+  password = request.args.get('password')
   cursor = g.conn.execute("SELECT * FROM Users u WHERE u.username = %s", username)
   record = cursor.fetchone()
   if record is None:
