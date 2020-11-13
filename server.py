@@ -9,7 +9,6 @@ A debugger such as "pdb" may be helpful for debugging.
 Read about it online.
 """
 import os
-  # accessible as a variable in index.html:
 from sqlalchemy import *
 from sqlalchemy.pool import NullPool
 from flask import Flask, request, render_template, g, redirect, Response, make_response
@@ -18,36 +17,8 @@ import re
 tmpl_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'templates')
 app = Flask(__name__, template_folder=tmpl_dir)
 
-
-#
-# The following is a dummy URI that does not connect to a valid database. You will need to modify it to connect to your Part 2 database in order to use the data.
-#
-# XXX: The URI should be in the format of:
-#
-#     postgresql://USER:PASSWORD@34.75.150.200/proj1part2
-#
-# For example, if you had username gravano and password foobar, then the following line would be:
-#
-#     DATABASEURI = "postgresql://gravano:foobar@34.75.150.200/proj1part2"
-#
 DATABASEURI = "postgresql://tn2415:7841@34.75.150.200/proj1part2"
-
-
-#
-# This line creates a database engine that knows how to connect to the URI above.
-#
 engine = create_engine(DATABASEURI)
-
-#
-# Example of running queries in your database
-# Note that this will probably not work if you already have a table named 'test' in your database, containing meaningful data. This is only an example showing you how to run queries in your database using SQLAlchemy.
-#
-engine.execute("""CREATE TABLE IF NOT EXISTS test (
-  id serial,
-  name text
-);""")
-#engine.execute("""INSERT INTO test(name) VALUES ('grace hopper'), ('alan turing'), ('ada lovelace');""")
-
 
 @app.before_request
 def before_request():
@@ -65,34 +36,12 @@ def teardown_request(exception):
   except Exception as e:
     pass
 
-
-#
-# @app.route is a decorator around index() that means:
-#   run index() whenever the user tries to access the "/" path using a GET request
-#
-# If you wanted the user to go to, for example, localhost:8111/foobar/ with POST or GET then you could use:
-#
-#       @app.route("/foobar/", methods=["POST", "GET"])
-#
-# PROTIP: (the trailing / in the path is important)
-#
-# see for routing: http://flask.pocoo.org/docs/0.10/quickstart/#routing
-# see for decorators: http://simeonfranklin.com/blog/2012/jul/1/python-decorators-in-12-steps/
-#
 @app.route('/')
 def index():
   resp = make_response(render_template("index.html"))
   resp.set_cookie('username', '', expires=0)
   return resp
 
-#
-# This is an example of a different path.  You can see it at:
-#
-#     localhost:8111/another
-#
-# Notice that the function name is another() rather than index()
-# The functions for each app.route need to have different names
-#
 @app.route('/register')
 def register():
   return render_template("register.html")
@@ -105,7 +54,6 @@ def login():
 def search():
   return render_template("search.html")
 
-# Example of adding new data to the database
 @app.route('/newuser', methods=['POST'])
 def add():
   username = request.form['name']
@@ -175,16 +123,46 @@ def searchdifficulty():
   context = dict(data = questions)
   return render_template("search.html", **context)
 
-@app.route('/searchtopic')
-def searchtopic():
-  topic = request.args.get('topic')
-  cursor = g.conn.execute("SELECT q.qid, q.title, q.content FROM Questions q, Is_Categorized_As i WHERE i.qid = q.qid AND i.topic_name = %s", topic)
+@app.route('/searchsource')
+def searchsource():
+  source = request.args.get('source')
+  cursor = g.conn.execute("SELECT q.qid, q.title, q.content FROM Questions q WHERE q.source = %s", source)
   questions = []
   for result in cursor:
     questions.append(result)
   cursor.close()
   if len(questions) == 0:
-    message = "no questions related to this topic yet"
+    message = "No question from " + source + " yet. Please try other sources."
+    context = dict(msg = message)
+    return render_template("search.html", **context)
+  context = dict(data = questions)
+  return render_template("search.html", **context)
+
+@app.route('/searchtopic')
+def searchtopic():
+  topic = request.args.get('topic')
+  cursor = g.conn.execute("SELECT q.qid, q.title, q.content FROM Questions q, Is_Categorized_As i WHERE i.qid = q.qid AND i.topic_name = %s ORDER BY q.qid", topic)
+  questions = []
+  for result in cursor:
+    questions.append(result)
+  cursor.close()
+  if len(questions) == 0:
+    message = "No questions related to this topic yet"
+    context = dict(msg = message)
+    return render_template("search.html", **context)
+  context = dict(data = questions)
+  return render_template("search.html", **context)
+
+@app.route('/searchmostliked')
+def searchmostliked():
+  number = request.args.get('number')
+  cursor = g.conn.execute("SELECT q.qid, q.title, q.content FROM Questions q, User_Liked_Question u WHERE q.qid = u.qid GROUP BY q.qid HAVING COUNT(*) >= %s ORDER BY q.qid", number)
+  questions = []
+  for result in cursor:
+    questions.append(result)
+  cursor.close()
+  if len(questions) == 0:
+    message = "No questions received this much likes. Please try other numbers."
     context = dict(msg = message)
     return render_template("search.html", **context)
   context = dict(data = questions)
@@ -193,13 +171,13 @@ def searchtopic():
 @app.route('/searchcompany')
 def searchcompany():
   company = request.args.get('company')
-  cursor = g.conn.execute("SELECT q.qid, a.last_time_asked, q.title, q.content FROM Questions q, Asked_By a WHERE a.qid = q.qid AND a.company_name = %s", company)
+  cursor = g.conn.execute("SELECT q.qid, a.last_time_asked, q.title, q.content FROM Questions q, Asked_By a WHERE a.qid = q.qid AND a.company_name = %s ORDER BY q.qid", company)
   questions = []
   for result in cursor:
     questions.append(result)
   cursor.close()
   if len(questions) == 0:
-    message = "no questions related to this company yet"
+    message = "No questions related to this company yet"
     context = dict(msg = message)
     return render_template("search.html", **context)
   context = dict(data = questions)
@@ -223,7 +201,7 @@ def searchreal():
 @app.route('/searchdiscussion')
 def searchdiscussion():
   qid = request.args.get('discussion')
-  cursor = g.conn.execute("SELECT d.content, d.posted_at, d.username FROM Discussions_Belong_To d WHERE d.post_id = %s", qid)
+  cursor = g.conn.execute("SELECT d.content, d.posted_at, d.username FROM Discussions_Belong_To d WHERE d.post_id = %s ORDER BY d.post_id", qid)
   discussion = []
   for result in cursor:
     discussion.append(result)
@@ -245,7 +223,7 @@ def searchtrained():
     context = dict(msg = message)
     return render_template("search.html", **context)
 
-  cursor = g.conn.execute("SELECT q.qid, q.title, q.content, u.trained_at FROM Questions q, User_Trained_Question u WHERE q.qid = u.qid AND u.username = %s", username)
+  cursor = g.conn.execute("SELECT q.qid, q.title, q.content, u.trained_at FROM Questions q, User_Trained_Question u WHERE q.qid = u.qid AND u.username = %s ORDER BY q.qid", username)
   questions = []
   for result in cursor:
     questions.append(result)
@@ -266,7 +244,7 @@ def searchliked():
     message = "Cannot identify user. Please login first."
     context = dict(msg = message)
     return render_template("search.html", **context)
-  cursor = g.conn.execute("SELECT q.qid, q.title, q.content FROM Questions q, User_Liked_Question u WHERE q.qid = u.qid AND u.username = %s", username)
+  cursor = g.conn.execute("SELECT q.qid, q.title, q.content FROM Questions q, User_Liked_Question u WHERE q.qid = u.qid AND u.username = %s ORDER BY q.qid", username)
   questions = []
   for result in cursor:
     questions.append(result)

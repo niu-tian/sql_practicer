@@ -64,7 +64,6 @@
           <option value="goldman saches">goldman saches</option>
           <option value="oracle">oracle</option>
           <option value="doordash">doordash</option>
-          <option value="between">between</option>
         </select>
         <input type="submit" value="Search Company">
       </form>
@@ -76,6 +75,22 @@
           <option value="real">Real interview questions only</option>
         </select>
         <input type="submit" value="Search Real">
+      </form>
+
+      <form method="GET" action="/searchsource">
+        <p>Please select question source you are interested in: </p>
+        <select name="source">
+          <option selected value="leetcode">leetcode</option>
+          <option value="w3schools">w3schools</option>
+          <option value="wiki">wiki</option>
+        </select>
+        <input type="submit" value="Search Source">
+      </form>
+
+      <form method="GET" action="/searchmostliked">
+        <p>Please show me questions received "likes" no less than than X times. Pleae specify X: </p>
+        <input type="number" min="1" max="100" name="number">
+        <input type="submit" value="Search ">
       </form>
 
       <form method="GET" action="/searchdiscussion">
