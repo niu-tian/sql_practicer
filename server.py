@@ -13,6 +13,8 @@ from sqlalchemy import *
 from sqlalchemy.pool import NullPool
 from flask import Flask, request, render_template, g, redirect, Response, make_response
 import re
+from datetime import date
+from datetime import datetime
 
 tmpl_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'templates')
 app = Flask(__name__, template_folder=tmpl_dir)
@@ -107,6 +109,75 @@ def olduser():
   resp.set_cookie('username', username)
   return resp
 
+@app.route('/question')
+def question():
+  qid = request.args.get('qid')
+  cursor_q = g.conn.execute("SELECT q.title, q.content FROM Questions q WHERE q.qid = %s", qid)
+  cursor_d = g.conn.execute("SELECT d.content, d.posted_at, d.username FROM Discussions_Belong_To d WHERE d.qid = %s", qid)
+  question = cursor_q.fetchone()
+  if question is None:
+    message = "Problem " + qid + " does not exist."
+    context = dict(msg = message)
+    return render_template("question.html", **context)
+  cursor_q.close()
+  context = dict(question = question)
+  comment = []
+  for result in cursor_d:
+    comment.append(result)
+  cursor_d.close()
+  context = dict(comment = comment, question = question)
+  resp = make_response(render_template("question.html", **context))
+  resp.set_cookie('qid', qid)
+  return resp
+
+@app.route('/updatelike', methods=['GET', 'POST'])
+def updatelike():
+  username = request.cookies.get('username')
+  qid = request.cookies.get('qid')
+  cursor_q = g.conn.execute("SELECT q.title, q.content FROM Questions q WHERE q.qid = %s", qid)
+  cursor_d = g.conn.execute("SELECT d.content, d.posted_at, d.username FROM Discussions_Belong_To d WHERE d.qid = %s", qid)
+  question = cursor_q.fetchone()
+  cursor_q.close()
+  comment = []
+  for result in cursor_d:
+    comment.append(result)
+  cursor_d.close()
+  cursor = g.conn.execute("SELECT * FROM User_Liked_Question u WHERE u.qid = %s AND u.username = %s", qid, username)
+  record = cursor.fetchone()
+  cursor.close()
+  message = ""
+  if record is not None:
+    message = "You've already liked this question!"
+  else:
+    g.conn.execute('INSERT INTO User_Liked_Question(username, qid) VALUES (%s, %s)', username, qid)
+    message = "You've successfully liked this question!"
+  context = dict(comment = comment, question = question, status = message)
+  return render_template("question.html", **context)
+
+@app.route('/updatetrain', methods=['GET', 'POST'])
+def updatetrain():
+  username = request.cookies.get('username')
+  qid = request.cookies.get('qid')
+  cursor_q = g.conn.execute("SELECT q.title, q.content FROM Questions q WHERE q.qid = %s", qid)
+  cursor_d = g.conn.execute("SELECT d.content, d.posted_at, d.username FROM Discussions_Belong_To d WHERE d.qid = %s", qid)
+  question = cursor_q.fetchone()
+  cursor_q.close()
+  comment = []
+  for result in cursor_d:
+    comment.append(result)
+  cursor_d.close()
+  cursor = g.conn.execute("SELECT * FROM User_Trained_Question u WHERE u.qid = %s AND u.username = %s", qid, username)
+  record = cursor.fetchone()
+  cursor.close()
+  message = ""
+  if record is not None:
+    message = "You worked on this question on " + record[2].strftime("%m/%d/%Y") + " already!"
+  else:
+    g.conn.execute('INSERT INTO User_Trained_Question(username, qid, trained_at) VALUES (%s, %s, %s)', username, qid, date.today())
+    message = "You have succsefully trained on this problem, keep it up!"
+  context = dict(comment = comment, question = question, status = message)
+  return render_template("question.html", **context)
+
 @app.route('/searchdifficulty')
 def searchdifficulty():
   difficulty = request.args.get('difficulty')
@@ -171,13 +242,13 @@ def searchmostliked():
 @app.route('/searchcompany')
 def searchcompany():
   company = request.args.get('company')
-  cursor = g.conn.execute("SELECT q.qid, a.last_time_asked, q.title, q.content FROM Questions q, Asked_By a WHERE a.qid = q.qid AND a.company_name = %s ORDER BY q.qid", company)
+  cursor = g.conn.execute("SELECT q.qid, q.title, q.content FROM Questions q, Asked_By a WHERE a.qid = q.qid AND a.company_name = %s ORDER BY q.qid", company)
   questions = []
   for result in cursor:
     questions.append(result)
   cursor.close()
   if len(questions) == 0:
-    message = "No questions related to this company yet"
+    message = "No questions related to this company yet."
     context = dict(msg = message)
     return render_template("search.html", **context)
   context = dict(data = questions)
@@ -198,20 +269,20 @@ def searchreal():
   context = dict(data = questions)
   return render_template("search.html", **context)
 
-@app.route('/searchdiscussion')
-def searchdiscussion():
-  qid = request.args.get('discussion')
-  cursor = g.conn.execute("SELECT d.content, d.posted_at, d.username FROM Discussions_Belong_To d WHERE d.post_id = %s ORDER BY d.post_id", qid)
-  discussion = []
-  for result in cursor:
-    discussion.append(result)
-  cursor.close()
-  if len(discussion) == 0:
-    message = "no disscusion on this question yet"
-    context = dict(msg = message)
-    return render_template("search.html", **context)
-  context = dict(data = discussion)
-  return render_template("search.html", **context)
+# @app.route('/searchdiscussion')
+# def searchdiscussion():
+#   qid = request.args.get('discussion')
+#   cursor = g.conn.execute("SELECT d.content, d.posted_at, d.username FROM Discussions_Belong_To d WHERE d.post_id = %s ORDER BY d.post_id", qid)
+#   discussion = []
+#   for result in cursor:
+#     discussion.append(result)
+#   cursor.close()
+#   if len(discussion) == 0:
+#     message = "no disscusion on this question yet"
+#     context = dict(msg = message)
+#     return render_template("search.html", **context)
+#   context = dict(data = discussion)
+#   return render_template("search.html", **context)
 
 @app.route('/searchtrained')
 def searchtrained():

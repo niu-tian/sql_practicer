@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Problem</title>
+    <link rel="stylesheet" href="{{ url_for('static',filename='question.css') }}">
+  </head>
+  <body>
+    <h1 id="questionTitle">{{question[0]}}</h1>
+    <div id="btn">
+      <form action="/updatelike" method="post" style="float: left;">
+        <button type="submit">Like</button>
+      </form>
+      <form action="/updatetrain"  method="post">
+        <button type="submit">Trained</button>
+      </form>
+    </div>
+
+    <div id="updateStatus">{{status}}</div>
+
+    <div id="questionContent">{{question[1]}}</div>
+
+    <div id="message">{{msg}}</div>
+
+    <div id="comment">
+      {% if comment|length == 0 %}
+        <div>No disscussions on this problem yet.</div>
+      {% else %}
+        Disscussion Board:
+        <ul>
+        {% for n in comment %}
+        <li>{{n[2]}} said: {{n[0]}} at {{n[1]}}</li>
+        {% endfor %}
+        </ul>
+      {% endif %}
+      </div>
+
+    <p><a href="/search">Go back to search page</a></p>
+    <p>Done practicing? <a href="/">Log out</a></p>
+  </body>
+</html>

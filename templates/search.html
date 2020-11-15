@@ -10,9 +10,11 @@
     <div id="message">{{msg}}</div>
 
     <div id="output">
-      {% for n in data %}
-      <div>{{n}}</div>
-      {% endfor %}
+      <ul>
+        {% for n in data %}
+        <li>Problem {{n[0]}}: <a href="/question?qid={{n[0]}}">{{n[1]}}</a></li>
+        {% endfor %}
+      </ul>
     </div>
 
     <div id="search">
@@ -93,6 +95,7 @@
         <input type="submit" value="Search ">
       </form>
 
+      <!--
       <form method="GET" action="/searchdiscussion">
         <p>Please select a question title whose discussions you would like to see: </p>
         <select name="discussion">
@@ -109,6 +112,7 @@
         </select>
         <input type="submit" value="Search Discussion">
       </form>
+      -->
 
       <form method="GET" action="/searchtrained">
         <p>I would like to see questions I practiced before: </p>
@@ -117,7 +121,7 @@
 
       <form method="GET" action="/searchliked">
         <p>I would like to see questions I saved before: </p>
-        <input type="submit" value="Search Saved Questions">
+        <input type="submit" value="Search Liked Questions">
       </form>
     </div>
 

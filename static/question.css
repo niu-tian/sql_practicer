@@ -1,0 +1,39 @@
+body {
+  margin: 8pt;
+}
+
+button {
+  margin: 5pt;
+}
+
+button {
+  font-size: large;
+}
+
+#updateStatus {
+  color: brown;
+  font-size: large;
+}
+
+#questionContent {
+  margin: 10pt;
+  padding: 10pt;
+  border: beige;
+  background-color: bisque;
+  border-radius: 0.5cm;
+  border-style: double;
+}
+
+#message {
+  color: brown;
+  font-size: large;
+}
+
+#comment {
+  margin: 10pt;
+  padding: 5pt;
+  border: burlywood;
+  background-color: cornsilk;
+  border-radius: 0.5cm;
+  border-style: dotted;
+}
