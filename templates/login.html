@@ -2,16 +2,17 @@
 <html>
   <head>
     <title>Login</title>
+    <link rel="stylesheet" href="{{ url_for('static',filename='login.css') }}">
   </head>
   <body>
     <h1>Please enter your username and password.</h1>
     <form method='GET' action="/olduser">
-      <div><strong>username: </strong><input name='name' type='text' size='8'/></div>
-      <div><strong>password: </strong><input name='password' type='password' size='8' /></div>
+      <div>username: <input name='name' type='text' size='8'/></div>
+      <div>password: <input name='password' type='password' size='8' /></div>
       <div><input type='submit' value='Log in' class='btn' /></div>
     </form>
 
-    <div>{{msg}}</div>
+    <div id="message">{{msg}}</div>
   </body>
 
   <p><a href="/">Go back to home page.</a></p>

@@ -1,0 +1,17 @@
+body {
+  margin: 5pt;
+}
+
+form {
+  font-size: large;
+}
+
+form div {
+  margin: 3pt;
+}
+
+#message {
+  margin: 5pt;
+  font-size: large;
+  color: brown;
+}

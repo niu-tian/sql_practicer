@@ -2,20 +2,21 @@
 <html>
   <head>
     <title>Register</title>
+    <link rel="stylesheet" href="{{ url_for('static',filename='login.css') }}">
   </head>
   <body>
     <h1>Please enter the following information.</h1>
 
     <form method='POST' action="/newuser">
-      <div><strong>username: </strong><input name='name' type='text' size='8' autofocus='autofocus' /></div>
-      <div><strong>password: </strong><input name='password' type='password' size='8' /></div>
-      <div><strong>email: </strong><input name='email' type='text' size='8' autofocus='autofocus' /></div>
-      <div><strong>first name: </strong><input name='firstname' type='text' size='8' /></div>
-      <div><strong>last name: </strong><input name='lastname' type='text' size='8' /></div>
+      <div>username: <input name='name' type='text' size='8' autofocus='autofocus' /></div>
+      <div>password: <input name='password' type='password' size='8' /></div>
+      <div>email: <input name='email' type='text' size='8' autofocus='autofocus' /></div>
+      <div>first name: <input name='firstname' type='text' size='8' /></div>
+      <div>last name: <input name='lastname' type='text' size='8' /></div>
       <div><input type='submit' value='register' class='btn' /></div>
     </form>
 
-    <div>{{msg}}</div>
+    <div id="message">{{msg}}</div>
 
     <p><a href="/">Go back to home page.</a></p>
   </body>
