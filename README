@@ -1,7 +1,21 @@
 PostgreSQL account: tn2415
 
-URL of web app:
+URL of web app: 
 
-Description:
+Description: 
+
+We implemented the functions by which a user can query questions by difficulty level, by topic, source, by real interview question or not, by the amount of "likes" received. In addition, a user could retrieve all questions he has "trained" before or "liked" before. A user can click a question to view it explicitly, the discussions related to that question will be displayed. He can also add a comment to the discussion board. 
+
+Besides functions in the proposal, we also let a new user create an account and let users with account login with some restrictions on username, password, and email. Also, for each question, a user can click "like" and/or "trained" buttons to save that question to his "liked" and/or "saved" profile, which he could retrieve later.
+
+The only part we did not implement is to display the first few questions once the user opens up the app. We decided to make the questions user-specific so a log in necessary before a user can see the questions. Once login, a user is able to retrieve all questions or some questions according to his preference.
 
 Most interesting operations:
+
+The question.html and search.html pages require the most interesting database operations. 
+
+Using the qid and username stored in the cookie (generated when the user logs in), the question page first fetches the question title and content from the database using qid. It then fetchs all discussions posted to this specific question and display them in the discussion board (it will say no discussion if there's no disscusion related to that question yet). More interestingly, a user can save the question to his trained or liked question set by clicking buttons, which he can retrieve later in the search page. What's more, a user can post his comment to the discussion board by typing in the text box and submit. The database will insert this operation into the Disscussion_Belong_To table. It is then shown in the disscussion board immediately. This page is interesting because it involves both fetching existing instances and inserting new information into database.
+
+Using the username stored in the cookie (generated when the user logs in), the user can ask for questions based on multiple criterions as stated in the proposal. He can even search for his "like" or "trained" questions to review or practice again. These requests will go to the backend and SELECT related data fields based on given standards. The backend then return the results back to frontend where users can see what they requested for. From the question list displayed according to user's search, he can click to see one question explicit. This page is interesting because it involves multiple searching methods among which a user can choose freely. It also brings a customized user experience by having users searching for their own "liked" or "trained" questions.
+
+
