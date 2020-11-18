@@ -10,7 +10,7 @@ button {
   font-size: large;
 }
 
-#updateStatus {
+#updateStatus, #inputStatus {
   color: brown;
   font-size: large;
 }
@@ -36,4 +36,15 @@ button {
   background-color: cornsilk;
   border-radius: 0.5cm;
   border-style: dotted;
+}
+
+#userInput {
+  font-size: large;
+  margin: 10pt;
+  padding: 5pt;
+}
+
+p {
+  margin: 10pt;
+  padding: 5pt;
 }

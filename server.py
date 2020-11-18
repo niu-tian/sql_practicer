@@ -154,6 +154,30 @@ def updatelike():
   context = dict(comment = comment, question = question, status = message)
   return render_template("question.html", **context)
 
+@app.route('/addcomment', methods=['POST'])
+def addcomment():
+  username = request.cookies.get('username')
+  qid = request.cookies.get('qid')
+  content = request.form['input']
+  message = ""
+  if not content:
+    message = "Empty comment cannot be added."
+  else:
+    new_post_id = 1 + g.conn.execute("SELECT MAX(d.post_id) FROM Discussions_Belong_To d").fetchone()[0]
+    g.conn.execute('INSERT INTO Discussions_Belong_To(post_id, content, posted_at, qid, username) VALUES (%s, %s, %s, %s, %s)', new_post_id, content, datetime.now().strftime("%Y-%m-%d %H:%M:%S"), qid, username)
+    message = "Comment successfully added!"
+
+  cursor_q = g.conn.execute("SELECT q.title, q.content FROM Questions q WHERE q.qid = %s", qid)
+  cursor_d = g.conn.execute("SELECT d.content, d.posted_at, d.username FROM Discussions_Belong_To d WHERE d.qid = %s", qid)
+  question = cursor_q.fetchone()
+  cursor_q.close()
+  comment = []
+  for result in cursor_d:
+    comment.append(result)
+  cursor_d.close()
+  context = dict(comment = comment, question = question, inputStatus = message)
+  return render_template("question.html", **context)
+
 @app.route('/updatetrain', methods=['GET', 'POST'])
 def updatetrain():
   username = request.cookies.get('username')
@@ -268,21 +292,6 @@ def searchreal():
   cursor.close()
   context = dict(data = questions)
   return render_template("search.html", **context)
-
-# @app.route('/searchdiscussion')
-# def searchdiscussion():
-#   qid = request.args.get('discussion')
-#   cursor = g.conn.execute("SELECT d.content, d.posted_at, d.username FROM Discussions_Belong_To d WHERE d.post_id = %s ORDER BY d.post_id", qid)
-#   discussion = []
-#   for result in cursor:
-#     discussion.append(result)
-#   cursor.close()
-#   if len(discussion) == 0:
-#     message = "no disscusion on this question yet"
-#     context = dict(msg = message)
-#     return render_template("search.html", **context)
-#   context = dict(data = discussion)
-#   return render_template("search.html", **context)
 
 @app.route('/searchtrained')
 def searchtrained():

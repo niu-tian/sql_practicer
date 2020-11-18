@@ -32,7 +32,16 @@
         {% endfor %}
         </ul>
       {% endif %}
-      </div>
+    </div>
+
+    <form id="userInput" method = "POST" action="/addcomment">
+      My Comment:
+      <br />
+      <textarea name="input" rows="15" cols="50"></textarea>
+      <br />
+      <input type = "submit" value="Add Comment">
+    </form>
+    <p id="inputStatus">{{inputStatus}}</p>
 
     <p><a href="/search">Go back to search page</a></p>
     <p>Done practicing? <a href="/">Log out</a></p>
