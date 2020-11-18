@@ -87,7 +87,7 @@ def add():
   lastname = request.form['lastname']
   g.conn.execute('INSERT INTO Users(username, password, email, first_name, last_name) VALUES (%s, %s, %s, %s, %s)', username, password, email, firstname, lastname)
   cursor.close()
-  return redirect('/search')
+  return redirect('/')
 
 @app.route('/olduser')
 def olduser():
