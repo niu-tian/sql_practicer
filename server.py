@@ -19,7 +19,7 @@ from datetime import datetime
 tmpl_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'templates')
 app = Flask(__name__, template_folder=tmpl_dir)
 
-DATABASEURI = "postgresql://tn2415:7841@34.75.150.200/proj1part2"
+DATABASEURI = "postgresql://<username>:<password>@34.75.150.200/proj1part2"
 engine = create_engine(DATABASEURI)
 
 @app.before_request
